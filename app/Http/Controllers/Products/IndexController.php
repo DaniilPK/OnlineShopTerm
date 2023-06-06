@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Products;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderRequest;
-use App\Http\Requests\Product\SortingRequest;
 use App\Models\Basket;
 use App\Models\Categories;
 use App\Models\Products;
@@ -30,6 +29,10 @@ class IndexController extends Controller
             }
         } else {
             $query = Products::query()->orderBy('id', 'desc');
+        }
+
+        if (!is_null($request->get('search'))){
+            $query = Products::query()->where('name', 'like', '%'.$request->get('search').'%');
         }
 
         $return['all'] = $query->Paginate(12);
