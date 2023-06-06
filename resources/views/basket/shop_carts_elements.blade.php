@@ -173,7 +173,8 @@
                         <div class="footer_widget df_about_area">
                             <div class="brand_logo mb_30">
                                 <a href="{{ route('main') }}">
-                                    <img src="{{ asset("assets/images/logo/logo_28_1x.png") }}" srcset="{{ asset("assets/images/logo/logo_28_2x.png") }} 2x" alt="logo_not_found">
+                                    <img src="{{ asset("assets/images/logo/logo_02_1x.png") }}"
+                                         srcset="{{ asset("assets/images/logo/logo_02_2x.png") }} 2x" alt="logo_not_found">
                                 </a>
                             </div>
 
