@@ -31,17 +31,15 @@ class IndexController extends Controller
             $query = Products::query()->orderBy('id', 'desc');
         }
 
-        if (!is_null($request->get('search'))){
-            $query = Products::query()->where('name', 'like', '%'.$request->get('search').'%');
+        if (!is_null($request->get('search'))) {
+            $query = Products::query()->where('name', 'like', '%' . $request->get('search') . '%');
         }
 
         $return['all'] = $query->Paginate(12);
         $return['categories'] = Categories::all()->where('parent_id', null);
         $return['baskets'] = auth()->check() ? User::find(auth()->id())->basket : null;
-        if (!is_null($return['baskets']))
-        {
-            foreach ($return['baskets'] as $count => $basket)
-            {
+        if (!is_null($return['baskets'])) {
+            foreach ($return['baskets'] as $count => $basket) {
                 $return['baskets'][$count] = $basket->product;
                 $return['baskets'][$count]['products_count'] = $basket->products_count;
             }
@@ -61,35 +59,29 @@ class IndexController extends Controller
 
     public function details(Request $request, $id)
     {
+        $return['categories'] = Categories::all()->where('parent_id', null);
 
-        if (is_numeric($id)) {
-            $return['categories'] = Categories::all()->where('parent_id', null);
+        $return['product'] = Products::find($id);
+        $return['latestProducts'] = Products::whereNotIn('id', [$id])->orderByDesc('id')->take(4)->get();
 
-            $return['product'] = Products::find($id);
-            $return['latestProducts'] = Products::whereNotIn('id', [$id])->orderByDesc('id')->take(4)->get();
+        $return['category'] = $return['product']->category;
+        $data = json_decode($return['product']['prefixes']);
 
-            $return['category'] = $return['product']->category;
-            $data = json_decode($return['product']['prefixes']);
+        $return['product'] ['hot'] = $data->hot;
+        $return['product'] ['new'] = $data->new;
+        $return['product'] ['sale'] = $data->sale;
+        $return['product'] ['discount'] = $data->discount;
 
-            $return['product'] ['hot'] = $data->hot;
-            $return['product'] ['new'] = $data->new;
-            $return['product'] ['sale'] = $data->sale;
-            $return['product'] ['discount'] = $data->discount;
-
-            $return['baskets'] = auth()->check() ? User::find(auth()->id())->basket : null;
-            if (!is_null($return['baskets']))
-            {
-                foreach ($return['baskets'] as $count => $basket)
-                {
-                    $return['baskets'][$count] = $basket->product;
-                    $return['baskets'][$count]['products_count'] = $basket->products_count;
-                }
+        $return['baskets'] = auth()->check() ? User::find(auth()->id())->basket : null;
+        if (!is_null($return['baskets'])) {
+            foreach ($return['baskets'] as $count => $basket) {
+                $return['baskets'][$count] = $basket->product;
+                $return['baskets'][$count]['products_count'] = $basket->products_count;
             }
-
-            return view('main.product', $return);
-        } else {
-            return view('404');
         }
+
+        return view('main.product', $return);
+
     }
 
     public function shopCart()
@@ -97,15 +89,13 @@ class IndexController extends Controller
         if (!auth()->check()) return redirect('/login');
         $return['categories'] = Categories::all()->where('parent_id', null);
         $return['baskets'] = User::find(auth()->id())->basket;
-        if (!is_null($return['baskets']))
-        {
-            foreach ($return['baskets'] as $count => $basket)
-            {
+        if (!is_null($return['baskets'])) {
+            foreach ($return['baskets'] as $count => $basket) {
                 $return['baskets'][$count] = $basket->product;
                 $return['baskets'][$count]['products_count'] = $basket->products_count;
             }
         }
-        return view('basket.shop_cart',$return);
+        return view('basket.shop_cart', $return);
     }
 
 
@@ -115,18 +105,16 @@ class IndexController extends Controller
         $return['categories'] = Categories::all()->where('parent_id', null);
         $return['baskets'] = auth()->check() ? User::find(auth()->id())->basket : null;
         $return['subtotal'] = 0;
-        if (!is_null($return['baskets']))
-        {
-            foreach ($return['baskets'] as $count => $basket)
-            {
+        if (!is_null($return['baskets'])) {
+            foreach ($return['baskets'] as $count => $basket) {
                 $return['baskets'][$count] = $basket->product;
                 $return['baskets'][$count]['products_count'] = $basket->products_count;
 
-                $return['subtotal'] += ($basket->products_count *  $return['baskets'][$count]->price);
+                $return['subtotal'] += ($basket->products_count * $return['baskets'][$count]->price);
             }
         }
 
-        return view('basket.shop_checkout',$return);
+        return view('basket.shop_checkout', $return);
     }
 
     public function shopOrderCompleted(OrderRequest $request)
@@ -134,7 +122,7 @@ class IndexController extends Controller
         $request->validated();
         $return['categories'] = Categories::all()->where('parent_id', null);
         // Тут запись куда-то. Но сие действо не предусмотрено
-        return view('basket.order_completed',$return);
+        return view('basket.order_completed', $return);
     }
 
 }
